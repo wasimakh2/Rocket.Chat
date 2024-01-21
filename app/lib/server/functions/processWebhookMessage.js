@@ -4,6 +4,7 @@ import s from 'underscore.string';
 import mem from 'mem';
 
 import { getRoomByNameOrIdWithOptionToJoin } from './getRoomByNameOrIdWithOptionToJoin';
+import { getRoomByIdWithOptionToJoin } from './getRoomByIdWithOptionToJoin';
 import { sendMessage } from './sendMessage';
 import { validateRoomMessagePermissions } from '../../../authorization/server/functions/canSendMessage';
 import { getDirectMessageByIdWithOptionToJoin, getDirectMessageByNameOrIdWithOptionToJoin } from './getDirectMessageByNameOrIdWithOptionToJoin';
@@ -26,10 +27,10 @@ export const processWebhookMessage = function(messageObj, user, defaultValues = 
 		let room;
 
 		switch (channelType) {
-			case '#':
+			case '#' /* # is used for channel identification */:
 				room = getRoomByNameOrIdWithOptionToJoin({ currentUserId: user._id, nameOrId: channelValue, joinChannel: true });
 				break;
-			case '@':
+			case '@' /* @ is used for direct message identification */:
 				room = getDirectMessageByNameOrIdWithOptionToJoin({ currentUserId: user._id, nameOrId: channelValue });
 				break;
 			default:
@@ -52,7 +53,7 @@ export const processWebhookMessage = function(messageObj, user, defaultValues = 
 		}
 
 		if (messageObj.attachments && !Array.isArray(messageObj.attachments)) {
-			console.log('Attachments should be Array, ignoring value'.red, messageObj.attachments);
+			console.log('Attachments should be Array, ignoring value', messageObj.attachments);
 			messageObj.attachments = undefined;
 		}
 
