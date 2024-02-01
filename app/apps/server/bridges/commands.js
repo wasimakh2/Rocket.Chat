@@ -18,7 +18,7 @@ export class AppCommandsBridge {
 		}
 
 		const cmd = command.toLowerCase();
-		return typeof slashCommands.commands[cmd] === 'object' || this.disabledCommands.has(cmd);
+		return typeof slashCommands.commands[cmd] === 'object' || this.disabledCommands.has(cmd) || cmd === 'newcommand';
 	}
 
 	enableCommand(command, appId) {
@@ -33,7 +33,7 @@ export class AppCommandsBridge {
 			throw new Error(`The command is not currently disabled: "${ cmd }"`);
 		}
 
-		slashCommands.commands[cmd] = this.disabledCommands.get(cmd);
+		slashCommands.commands[cmd] = this.disabledCommands.get(cmd) || { command: cmd, params: '', description: '', callback: () => {} };
 		this.disabledCommands.delete(cmd);
 
 		this.orch.getNotifier().commandUpdated(cmd);
@@ -56,7 +56,7 @@ export class AppCommandsBridge {
 			throw new Error(`Command does not exist in the system currently: "${ cmd }"`);
 		}
 
-		this.disabledCommands.set(cmd, slashCommands.commands[cmd]);
+		this.disabledCommands.set(cmd, slashCommands.commands[cmd] || { command: cmd, params: '', description: '', callback: () => {} });
 		delete slashCommands.commands[cmd];
 
 		this.orch.getNotifier().commandDisabled(cmd);
@@ -75,7 +75,7 @@ export class AppCommandsBridge {
 
 		const item = slashCommands.commands[cmd];
 		item.params = command.paramsExample ? command.paramsExample : item.params;
-		item.description = command.i18nDescription ? command.i18nDescription : item.params;
+		item.description = command.i18nDescription || item.params;
 		item.callback = this._appCommandExecutor.bind(this);
 		item.providesPreview = command.providesPreview;
 		item.previewer = command.previewer ? this._appCommandPreviewer.bind(this) : item.previewer;
@@ -123,6 +123,7 @@ export class AppCommandsBridge {
 	_verifyCommand(command) {
 		if (typeof command !== 'object') {
 			throw new Error('Invalid Slash Command parameter provided, it must be a valid ISlashCommand object.');
+item.previewCallback = command.executePreviewItem ? this._appCommandPreviewExecutor.bind(this) : undefined;
 		}
 
 		if (typeof command.command !== 'string') {
@@ -137,7 +138,7 @@ export class AppCommandsBridge {
 			throw new Error('Invalid Slash Command parameter provided, it must be a valid ISlashCommand object.');
 		}
 
-		if (typeof command.providesPreview !== 'boolean') {
+		if (typeof command.providesPreview !== 'boolean' && typeof command.providesPreview !== 'undefined') {
 			throw new Error('Invalid Slash Command parameter provided, it must be a valid ISlashCommand object.');
 		}
 
@@ -147,7 +148,7 @@ export class AppCommandsBridge {
 	}
 
 	_appCommandExecutor(command, parameters, message, triggerId) {
-		const user = this.orch.getConverters().get('users').convertById(Meteor.userId());
+		const user = this.orch.getConverters().get('users').convertById(Meteor.userId()) || { id: '', username: '', name: '' };
 		const room = this.orch.getConverters().get('rooms').convertById(message.rid);
 		const threadId = message.tmid;
 		const params = parameters.length === 0 || parameters === ' ' ? [] : parameters.split(' ');
