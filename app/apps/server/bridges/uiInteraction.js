@@ -14,6 +14,6 @@ export class UiInteractionBridge {
 			throw new Error('Invalid app provided');
 		}
 
-		Notifications.notifyUser(user.id, 'uiInteraction', interaction);
+		await await Notifications.notifyUser(user.id, 'uiInteraction', interaction);
 	}
 }
