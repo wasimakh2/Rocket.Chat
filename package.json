@@ -248,7 +248,7 @@
 		"speakeasy": "^2.0.0",
 		"stream-buffers": "^3.0.2",
 		"string-strip-html": "^4.5.1",
-		"styled-components": "^4.4.1",
+		"styled-components": "^6.1.0",
 		"tar-stream": "^1.6.2",
 		"tinykeys": "^1.1.0",
 		"toastr": "^2.1.4",
